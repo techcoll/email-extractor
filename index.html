@@ -54,6 +54,15 @@
             margin: 0;
             word-wrap: break-word;
         }
+        .group {
+            margin-bottom: 10px;
+            padding: 5px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .count {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -65,26 +74,52 @@
 
         <div class="result" id="result">
             <h3>Extracted Emails:</h3>
-            <p id="emailList">No emails extracted yet.</p>
+            <p id="emailCount">Email Count: 0</p>
+            <div id="groupedEmails"></div>
         </div>
     </div>
 
     <script>
         function extractEmails() {
             const text = document.getElementById("textInput").value;
-
+            
+            // Clear the input text after extraction
+            document.getElementById("textInput").value = '';
+            
             // Regular expression for matching emails
             const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
             const emails = text.match(emailPattern);
 
             const resultDiv = document.getElementById("result");
-            const emailList = document.getElementById("emailList");
+            const emailCountDisplay = document.getElementById("emailCount");
+            const groupedEmailsDiv = document.getElementById("groupedEmails");
 
             if (emails && emails.length > 0) {
-                emailList.innerHTML = emails.join("<br>");
+                // Display the email count
+                emailCountDisplay.innerHTML = `Email Count: ${emails.length}`;
+
+                // Group emails in sets of 5 (you can change the number here)
+                let groupSize = 5;
+                let groupedEmails = [];
+                for (let i = 0; i < emails.length; i += groupSize) {
+                    groupedEmails.push(emails.slice(i, i + groupSize));
+                }
+
+                // Display grouped emails
+                groupedEmailsDiv.innerHTML = '';
+                groupedEmails.forEach((group, index) => {
+                    let groupHTML = `<div class="group"><strong>Group ${index + 1}:</strong><br>`;
+                    group.forEach(email => {
+                        groupHTML += `${email}<br>`;
+                    });
+                    groupHTML += `</div>`;
+                    groupedEmailsDiv.innerHTML += groupHTML;
+                });
+
                 resultDiv.style.display = "block";
             } else {
-                emailList.innerHTML = "No valid emails found.";
+                emailCountDisplay.innerHTML = "Email Count: 0";
+                groupedEmailsDiv.innerHTML = "No valid emails found.";
                 resultDiv.style.display = "block";
             }
         }
