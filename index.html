@@ -158,6 +158,7 @@
 
     <script>
         let isDarkMode = false;
+        let emails = []; // Store emails persistently across extractions
 
         function toggleMode() {
             isDarkMode = !isDarkMode;
@@ -179,14 +180,19 @@
             
             // Regular expression for matching emails
             const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-            const emails = text.match(emailPattern);
-            const groupSize = parseInt(document.getElementById("groupSize").value) || 1; // Default to no grouping if invalid input
+            const newEmails = text.match(emailPattern);
 
+            // If new emails are found, update the emails list
+            if (newEmails) {
+                emails = [...emails, ...newEmails];
+            }
+
+            const groupSize = parseInt(document.getElementById("groupSize").value) || 1; // Default to no grouping if invalid input
             const resultDiv = document.getElementById("result");
             const emailCountDisplay = document.getElementById("emailCount");
             const groupedEmailsDiv = document.getElementById("groupedEmails");
 
-            if (emails && emails.length > 0) {
+            if (emails.length > 0) {
                 emailCountDisplay.innerHTML = `Email Count: ${emails.length}`;
 
                 if (groupSize > 1) {
