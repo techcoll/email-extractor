@@ -9,7 +9,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #f4f4f9;
+            transition: background-color 0.3s, color 0.3s;
         }
         .container {
             max-width: 800px;
@@ -18,6 +18,7 @@
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
+            transition: background-color 0.3s, color 0.3s;
         }
         h1 {
             text-align: center;
@@ -63,9 +64,34 @@
         .count {
             font-weight: bold;
         }
+        .dark-mode {
+            background-color: #2e2e2e;
+            color: white;
+        }
+        .dark-mode .container {
+            background-color: #444;
+        }
+        .dark-mode button {
+            background-color: #555;
+        }
+        .dark-mode button:hover {
+            background-color: #666;
+        }
+        .mode-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
+    <button class="mode-toggle" onclick="toggleMode()">Switch to Dark Mode</button>
     <div class="container">
         <h1>Email Extractor</h1>
         <textarea id="textInput" placeholder="Paste text here..."></textarea>
@@ -75,16 +101,33 @@
         <div class="result" id="result">
             <h3>Extracted Emails:</h3>
             <p id="emailCount">Email Count: 0</p>
+            <label>
+                <input type="checkbox" id="groupToggle"> Group Emails
+            </label>
             <div id="groupedEmails"></div>
         </div>
     </div>
 
     <script>
+        let isDarkMode = false;
+
+        function toggleMode() {
+            isDarkMode = !isDarkMode;
+            const body = document.body;
+            const button = document.querySelector(".mode-toggle");
+
+            if (isDarkMode) {
+                body.classList.add("dark-mode");
+                button.textContent = "Switch to Light Mode";
+            } else {
+                body.classList.remove("dark-mode");
+                button.textContent = "Switch to Dark Mode";
+            }
+        }
+
         function extractEmails() {
             const text = document.getElementById("textInput").value;
-            
-            // Clear the input text after extraction
-            document.getElementById("textInput").value = '';
+            document.getElementById("textInput").value = ''; // Clear input field
             
             // Regular expression for matching emails
             const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
@@ -93,28 +136,30 @@
             const resultDiv = document.getElementById("result");
             const emailCountDisplay = document.getElementById("emailCount");
             const groupedEmailsDiv = document.getElementById("groupedEmails");
+            const groupToggle = document.getElementById("groupToggle").checked;
 
             if (emails && emails.length > 0) {
-                // Display the email count
                 emailCountDisplay.innerHTML = `Email Count: ${emails.length}`;
 
-                // Group emails in sets of 5 (you can change the number here)
-                let groupSize = 5;
-                let groupedEmails = [];
-                for (let i = 0; i < emails.length; i += groupSize) {
-                    groupedEmails.push(emails.slice(i, i + groupSize));
-                }
+                if (groupToggle) {
+                    let groupSize = 5;  // Group size of 5 emails, you can change this number
+                    let groupedEmails = [];
+                    for (let i = 0; i < emails.length; i += groupSize) {
+                        groupedEmails.push(emails.slice(i, i + groupSize));
+                    }
 
-                // Display grouped emails
-                groupedEmailsDiv.innerHTML = '';
-                groupedEmails.forEach((group, index) => {
-                    let groupHTML = `<div class="group"><strong>Group ${index + 1}:</strong><br>`;
-                    group.forEach(email => {
-                        groupHTML += `${email}<br>`;
+                    groupedEmailsDiv.innerHTML = '';
+                    groupedEmails.forEach((group, index) => {
+                        let groupHTML = `<div class="group"><strong>Group ${index + 1}:</strong><br>`;
+                        group.forEach(email => {
+                            groupHTML += `${email}<br>`;
+                        });
+                        groupHTML += `</div>`;
+                        groupedEmailsDiv.innerHTML += groupHTML;
                     });
-                    groupHTML += `</div>`;
-                    groupedEmailsDiv.innerHTML += groupHTML;
-                });
+                } else {
+                    groupedEmailsDiv.innerHTML = emails.join("<br>");
+                }
 
                 resultDiv.style.display = "block";
             } else {
