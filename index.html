@@ -6,87 +6,132 @@
     <title>Email Extractor</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 20px;
+            background-color: #f5f5f5;
             transition: background-color 0.3s, color 0.3s;
         }
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             background-color: white;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             transition: background-color 0.3s, color 0.3s;
         }
         h1 {
             text-align: center;
+            margin-bottom: 20px;
+            font-size: 2rem;
+            color: #333;
         }
         textarea {
             width: 100%;
             height: 200px;
-            padding: 10px;
+            padding: 15px;
             margin: 10px 0;
             font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            resize: none;
+            background-color: #f9f9f9;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s;
         }
         button {
             background-color: #4CAF50;
             color: white;
-            padding: 10px 20px;
+            padding: 12px 20px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
+            transition: background-color 0.3s;
         }
         button:hover {
             background-color: #45a049;
         }
         .result {
             margin-top: 20px;
-            background-color: #f8f8f8;
-            padding: 10px;
-            border-radius: 5px;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
             border: 1px solid #ddd;
         }
         .result p {
             margin: 0;
             word-wrap: break-word;
+            font-size: 14px;
         }
         .group {
             margin-bottom: 10px;
-            padding: 5px;
-            background-color: #f0f0f0;
-            border-radius: 5px;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-radius: 8px;
+            margin-top: 10px;
         }
-        .count {
-            font-weight: bold;
-        }
-        .dark-mode {
-            background-color: #2e2e2e;
-            color: white;
-        }
-        .dark-mode .container {
-            background-color: #444;
-        }
-        .dark-mode button {
-            background-color: #555;
-        }
-        .dark-mode button:hover {
-            background-color: #666;
+        .group strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            color: #555;
         }
         .mode-toggle {
             position: absolute;
             top: 20px;
             right: 20px;
-            padding: 10px;
+            padding: 10px 15px;
             background-color: #333;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .mode-toggle:hover {
+            background-color: #444;
+        }
+        .dark-mode {
+            background-color: #121212;
+            color: white;
+        }
+        .dark-mode .container {
+            background-color: #1e1e1e;
+        }
+        .dark-mode textarea {
+            background-color: #333;
+            color: #eee;
+            border: 1px solid #444;
+        }
+        .dark-mode .result {
+            background-color: #333;
+            border: 1px solid #444;
+        }
+        .dark-mode button {
+            background-color: #444;
+        }
+        .dark-mode button:hover {
+            background-color: #555;
+        }
+        .input-container {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .input-container label {
+            margin-right: 10px;
+            font-size: 16px;
+            color: #555;
+        }
+        .input-container input {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            width: 60px;
         }
     </style>
 </head>
@@ -98,12 +143,15 @@
         <br>
         <button onclick="extractEmails()">Extract Emails</button>
 
-        <div class="result" id="result">
+        <div class="result" id="result" style="display: none;">
             <h3>Extracted Emails:</h3>
             <p id="emailCount">Email Count: 0</p>
-            <label>
-                <input type="checkbox" id="groupToggle"> Group Emails
-            </label>
+
+            <div class="input-container">
+                <label for="groupSize">Group Size:</label>
+                <input type="number" id="groupSize" placeholder="Enter number" min="1">
+            </div>
+
             <div id="groupedEmails"></div>
         </div>
     </div>
@@ -132,17 +180,16 @@
             // Regular expression for matching emails
             const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
             const emails = text.match(emailPattern);
+            const groupSize = parseInt(document.getElementById("groupSize").value) || 1; // Default to no grouping if invalid input
 
             const resultDiv = document.getElementById("result");
             const emailCountDisplay = document.getElementById("emailCount");
             const groupedEmailsDiv = document.getElementById("groupedEmails");
-            const groupToggle = document.getElementById("groupToggle").checked;
 
             if (emails && emails.length > 0) {
                 emailCountDisplay.innerHTML = `Email Count: ${emails.length}`;
 
-                if (groupToggle) {
-                    let groupSize = 5;  // Group size of 5 emails, you can change this number
+                if (groupSize > 1) {
                     let groupedEmails = [];
                     for (let i = 0; i < emails.length; i += groupSize) {
                         groupedEmails.push(emails.slice(i, i + groupSize));
